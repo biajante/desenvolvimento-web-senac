@@ -3,6 +3,7 @@ package com.github.braully.dws;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -10,8 +11,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class ContatoServico {
+    
+    @Autowired
+    SolicitacaoContatoDAO conexaoBanco;
 
-    List<SolicitacaoContato> solicitacoes = new ArrayList<>();
+    //retirado após criar banco >> List<SolicitacaoContato> solicitacoes = new ArrayList<>();
 
     @RequestMapping("/processar-form-contato")
     public String recebeDadosParaContato(@RequestParam Map<String, String> todosParametros) {
@@ -23,12 +27,12 @@ public class ContatoServico {
         novaSolicitacao.email = todosParametros.get("email");
         novaSolicitacao.duvida = todosParametros.get("duvida");
 
-        System.out.println("Solicitações anteriores: " + solicitacoes);
+        //System.out.println("Solicitações anteriores: " + solicitacoes);
         System.out.println("Nova solicitação recebida: " + novaSolicitacao);
 
-        solicitacoes.add(novaSolicitacao);
+        conexaoBanco.save(novaSolicitacao);
 
-        return "redirect:/principal.html";
+        return "redirect:/principal.xhtml";
     }
 
     @RequestMapping("/todas-solicitacoes")
@@ -49,7 +53,7 @@ public class ContatoServico {
                 + "                <td>Duvida</td>\n"
                 + "            </tr>";
 
-        for (SolicitacaoContato sol : solicitacoes) {
+        for (SolicitacaoContato sol : conexaoBanco.findAll()) {
             String linhaTabela = "<tr>";
 
             //nome

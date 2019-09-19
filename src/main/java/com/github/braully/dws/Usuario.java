@@ -1,5 +1,6 @@
 package com.github.braully.dws;
 
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -18,13 +19,13 @@ public class Usuario {
     @Column(unique = true)
     @Basic
     String login;
-    
+
     @Basic
     String senha;
-    
+
     @ManyToMany
     Set<Grupo> gruposUsuario;
-    
+
     public String getLogin() {
         return login;
     }
@@ -48,5 +49,12 @@ public class Usuario {
     public void setId(Long id) {
         this.id = id;
     }
-    
+
+    void adicionaGrupo(Grupo k) {
+        if (this.gruposUsuario == null) {
+            this.gruposUsuario = new HashSet<>();
+        }
+        this.gruposUsuario.add(k);
+    }
+
 }

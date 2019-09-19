@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.faces.webapp.FacesServlet;
 import javax.servlet.ServletContext;
 import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
@@ -13,6 +14,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -24,11 +26,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.web.context.ServletContextAware;
 
+/**
+ *
+ * @author braully
+ */
 @EnableWebSecurity
 @SpringBootApplication
-
-public class AplicacaoWeb extends WebSecurityConfigurerAdapter
-        implements ServletContextAware {
+public class AplicacaoWeb extends WebSecurityConfigurerAdapter implements ServletContextAware {
 
     public static void main(String... args) {
         SpringApplication.run(AplicacaoWeb.class, args);
@@ -43,11 +47,12 @@ public class AplicacaoWeb extends WebSecurityConfigurerAdapter
     public UserDetailsService userDetailsService() {
         UserDetails user = User.withUsername("usuario")
                 .password(passwordEncoder().encode("123"))
-                .roles("ESTAGIARIO").build();
+                .roles("estagiario").build();
 
         UserDetails admin = User.withUsername("sky")
                 .password(passwordEncoder().encode("net"))
                 .roles("fodão", "fodãoSPlus").build();
+
         return new InMemoryUserDetailsManager(user, admin);
     }
 
@@ -55,9 +60,8 @@ public class AplicacaoWeb extends WebSecurityConfigurerAdapter
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                //.antMatchers("/public").permitAll()
                 .antMatchers("/").permitAll()
-                .antMatchers("/login*.html").permitAll()
+                .antMatchers("/login*").permitAll()
                 .antMatchers("/principal.xhtml").permitAll()
                 .antMatchers("/todas-solicitacoes").hasRole("fodão")
                 .anyRequest().authenticated().and()
@@ -97,8 +101,11 @@ public class AplicacaoWeb extends WebSecurityConfigurerAdapter
     @Bean
     public static CustomScopeConfigurer viewScope() {
         CustomScopeConfigurer configurer = new CustomScopeConfigurer();
+
         configurer.setScopes(
-                Map.of("view", new ViewScope()));
+                Map.of("view", new ViewScope())
+        );
+
         return configurer;
     }
 }
